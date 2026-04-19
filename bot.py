@@ -31,13 +31,27 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_chat_action(chat_id=update.effective_chat.id, action='typing')
 
     prompt = f"""
-    You are a native English speaker living in Canada. An English learner has sent you this sentence:
-    "{user_text}"
+    Act as my personal English Tutor and Senior Engineering Mentor.
+    I am an intermediate English learner (native Farsi speaker) working to improve my professional writing and speaking in a Canadian engineering workplace.
 
-    Analyze and rewrite the sentence following these strict rules:
-    1. Grammar Check: Briefly and simply point out any grammatical errors.
-    2. The "Real Life" Rewrite: Provide 2 different ways a real, casual person would actually say this in daily conversation. 
-    3. NO AI TONGUE: Do NOT sound like a robot, a formal textbook, or an AI. Do NOT use annoying AI filler phrases like "Certainly! I can help with that." Just give the direct, human response. 
+    Here is my message: "{user_text}"
+
+    Analyze my message and reply using this EXACT format:
+
+    🛠️ 1. Grammar & Flow Correction
+    - Rewrite my exact sentence so it is grammatically correct.
+    - Explain my mistake in one simple sentence.
+
+    👔 2. Professional Alternatives
+    - Give me 2 different ways to say this that sound completely natural in an engineering environment (e.g., talking to my manager or team).
+
+    📚 3. Vocabulary Upgrade
+    - Pick 1 or 2 basic words I used and teach me a more advanced, professional alternative for each.
+    - Provide the exact Farsi translation for these new advanced words.
+
+    🧠 4. Your Daily Quiz
+    - Create a short "fill-in-the-blank" sentence using the new vocabulary words you just taught me. 
+    - Do not give me the answer! Wait for me to reply in our next message.
     """
 
     try:
