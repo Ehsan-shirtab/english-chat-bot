@@ -27,13 +27,8 @@ Golden rule: Friend first, teacher second. Always.
 
 client = Groq(api_key=GROQ_API_KEY)
 
-# Conversation history per user
 conversation_history: dict[int, list] = {}
-
-# Mode per user: "correct" or "chat"
 user_mode: dict[int, str] = {}
-
-# Memory per user
 user_memory: dict[int, list] = {}
 
 
@@ -77,6 +72,38 @@ def build_memory_context(user_id: int) -> str:
     return f"\nWhat you already know about this person:\n{facts}\n"
 
 
+def _extract_memory(user_message: str, user_id: int):
+    try:
+        extract_prompt = f"""Read this message and extract any personal facts about the person.
+Only extract clear facts like name, job, city, hobby, family, nationality, age, goals.
+If there are no clear personal facts reply with exactly: NONE
+
+Message: "{user_message}"
+
+Reply with one fact per line, very short, like:
+- Lives in Victoria BC
+- Works as a nurse
+- Has a daughter
+
+Reply NONE if no personal facts found."""
+
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=[{"role": "user", "content": extract_prompt}],
+            max_tokens=100
+        )
+        result = response.choices[0].message.content.strip()
+
+        if result and result.upper() != "NONE":
+            for line in result.split("\n"):
+                line = line.strip().lstrip("-").strip()
+                if line and len(line) > 3:
+                    add_memory(user_id, line)
+
+    except Exception as e:
+        print(f"Memory extract error: {e}")
+
+
 async def ask_groq(
     prompt: str,
     user_id: int = None,
@@ -86,4 +113,37 @@ async def ask_groq(
     try:
         system = SYSTEM_PROMPT
 
-        # Add m
+        if user_id is not None:
+            memory_context = build_memory_context(user_id)
+            if memory_context:
+                system = system + memory_context
+
+        messages = []
+        if use_history and user_id is not None:
+            history = get_history(user_id)
+            history.append({"role": "user", "content": prompt})
+            messages = history
+        else:
+            messages = [{"role": "user", "content": prompt}]
+
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=[{"role": "system", "content": system}] + messages,
+            max_tokens=800
+        )
+
+        reply = response.choices[0].message.content
+
+        if use_history and user_id is not None:
+            get_history(user_id).append({"role": "assistant", "content": reply})
+            if len(conversation_history[user_id]) > 20:
+                conversation_history[user_id] = conversation_history[user_id][-20:]
+
+        if mode == "chat" and user_id is not None:
+            _extract_memory(prompt, user_id)
+
+        return reply
+
+    except Exception as e:
+        print(f"Groq error: {e}")
+        return "⚠️ Oops! Something went wrong. Please try again!"
