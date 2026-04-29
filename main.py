@@ -33,6 +33,8 @@ def main():
     app = Application.builder().token(TELEGRAM_TOKEN).build()
 
     # Register all command handlers
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("reset", reset))
     app.add_handler(CommandHandler("chat", chat_mode))
     app.add_handler(CommandHandler("correct", correct_mode))
     app.add_handler(CommandHandler("quiz", start_quiz))
