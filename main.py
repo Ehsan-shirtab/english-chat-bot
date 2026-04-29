@@ -7,7 +7,7 @@ from telegram.ext import (
     filters
 )
 from config import TELEGRAM_TOKEN
-from handlers.commands import start, reset, set_commands
+from handlers.commands import start, reset, set_commands, chat_mode, correct_mode
 from handlers.message_handler import handle_message
 from handlers.quiz_handler import start_quiz
 from handlers.words_handler import teach_words, teach_topic, explain_word
@@ -33,8 +33,8 @@ def main():
     app = Application.builder().token(TELEGRAM_TOKEN).build()
 
     # Register all command handlers
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("reset", reset))
+    app.add_handler(CommandHandler("chat", chat_mode))
+    app.add_handler(CommandHandler("correct", correct_mode))
     app.add_handler(CommandHandler("quiz", start_quiz))
     app.add_handler(CommandHandler("words", teach_words))
     app.add_handler(CommandHandler("mistakes", show_mistakes))
