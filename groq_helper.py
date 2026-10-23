@@ -5,7 +5,7 @@ load_dotenv()
 from groq import Groq
 
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
-MODEL = "llama-3.3-70b-versatile"
+MODEL = "openai/gpt-oss-120b"
 
 SYSTEM_PROMPT = """
 You are Aria — a warm, funny Canadian friend who also happens to be 
